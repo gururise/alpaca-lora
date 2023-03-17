@@ -11,13 +11,13 @@ from transformers import LlamaTokenizer, LlamaForCausalLM, GenerationConfig
 tokenizer = LlamaTokenizer.from_pretrained("decapoda-research/llama-7b-hf")
 
 model = LlamaForCausalLM.from_pretrained(
-    "decapoda-research/llama-13b-hf",
+    "decapoda-research/llama-7b-hf",
     load_in_8bit=True,
     torch_dtype=torch.float16,
     device_map="auto",
 )
 model = PeftModel.from_pretrained(
-    model, "./lora-alpaca", torch_dtype=torch.float16
+    model, "tloen/alpaca-lora-7b", torch_dtype=torch.float16
 )
 
 
@@ -45,13 +45,13 @@ model.eval()
 
 
 def evaluate(
-    instruction,
-    temperature=0.1,
-    top_p=0.75,
-    top_k=40,
-    num_beams=4,
-    input=None,
-    **kwargs,
+        instruction,
+        input=None,
+        temperature=0.1,
+        top_p=0.75,
+        top_k=40,
+        num_beams=4,
+        **kwargs,
 ):
     prompt = generate_prompt(instruction, input)
     inputs = tokenizer(prompt, return_tensors="pt")
@@ -82,6 +82,9 @@ gr.Interface(
         gr.components.Textbox(
             lines=2, label="Instruction", placeholder="Tell me about alpacas."
         ),
+        gr.components.Textbox(
+            lines=2, label="Input", placeholder="none"
+        ),
         gr.components.Slider(minimum=0, maximum=1, value=0.1, label="Temperature"),
         gr.components.Slider(minimum=0, maximum=1, value=0.75, label="Top p"),
         gr.components.Slider(minimum=0, maximum=100, step=1, value=40, label="Top k"),
@@ -94,7 +97,7 @@ gr.Interface(
         )
     ],
     title="🦙🌲 Alpaca-LoRA",
-    description="Alpaca-LoRA is a 13B-parameter LLaMA model finetuned to follow instructions. It is trained on the [Stanford Alpaca](https://github.com/tatsu-lab/stanford_alpaca) dataset and makes use of the Huggingface LLaMA implementation. For more information, please visit [the project's website](https://github.com/tloen/alpaca-lora).",
+    description="Alpaca-LoRA is a 7B-parameter LLaMA model finetuned to follow instructions. It is trained on the [Stanford Alpaca](https://github.com/tatsu-lab/stanford_alpaca) dataset and makes use of the Huggingface LLaMA implementation. For more information, please visit [the project's website](https://github.com/tloen/alpaca-lora).",
 ).launch(share=True)
 
 # Old testing code follows.
